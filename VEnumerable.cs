@@ -174,6 +174,18 @@ namespace VCollectionObjects
 		/// <returns>a <see cref="bool">boolean</see> value representing success or failure.</returns>
 		public bool Contains(T? item) => Items.Contains(item);
 		/// <summary>
+		/// Gets the element at the given <paramref name="index"/> position in the collection.
+		/// </summary>
+		/// <param name="index">An <see cref="int"/> value used to reference the index position of the element to get.</param>
+		/// <returns>the <see cref="T?"/> object found at the specified <paramref name="index"/> position.</returns>
+		public T? GetElementAt(int index) => Items[index];
+		/// <summary>
+		/// Attempts to get the element at the given <paramref name="index"/> position.
+		/// </summary>
+		/// <param name="index">An <see cref="int"/> value used to reference the index position of the element to get.</param>
+		/// <returns>the <see cref="T?"/> object found at the specified <paramref name="index"/> position.</returns>
+		public T? TryGetElementAt(int index) => IsIndexValid(index) ? Items[index] : default;
+		/// <summary>
 		/// Removes an item from the collection.
 		/// </summary>
 		/// <param name="item"></param>
