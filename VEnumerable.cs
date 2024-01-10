@@ -90,15 +90,8 @@ namespace VCollectionObjects
 		/// Creates a new instance of the <see cref="VEnumerable{T}"/> collection.
 		/// </summary>
 		public VEnumerable() { }
-
+		/// <inheritdoc cref="VEnumerable{T}"/>
 		public VEnumerable(IEnumerable<T> value) => Items=value.ToArray();
-
-		//public VEnumerable(Array value)
-		//{
-		//	var tmp=Array.CreateInstance(typeof(T), value.Length);
-		//	tmp.CopyTo(Items, 0);
-		//}
-
 		public static implicit operator VEnumerable<T>(List<T> value) => new(value.ToArray());
 		public static implicit operator VEnumerable<T>(Array value) => new(value.Cast<T>());
 
