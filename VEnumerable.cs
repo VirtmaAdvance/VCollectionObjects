@@ -4,7 +4,10 @@ using System.Reflection;
 
 namespace VCollectionObjects
 {
-
+	/// <summary>
+	/// Provides a more advanced means to manages a collection of items in a one-dimensional array.
+	/// </summary>
+	/// <typeparam name="T">The <see cref="Type"/> to use for the values stored within this collection.</typeparam>
 	public class VEnumerable<T>:IEnumerable, IEnumerable<T?>
 	{
 		/// <summary>
@@ -63,12 +66,41 @@ namespace VCollectionObjects
 		/// Specifies the access state for this collection.
 		/// </summary>
 		protected CollectionAccessStateFlags AccessState { get; set; } = CollectionAccessStateFlags.Unlocked;
-
+		/// <summary>
+		/// Gets or sets the value at a given <paramref name="index"/> in the collection.
+		/// </summary>
+		/// <remarks>If the index is out of range when setting a value, the collection size will be adjusted to accomodate the index position.</remarks>
+		/// <param name="index">The index position to get or set the the value.</param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		protected T? this[int index]
 		{
 			get => IsIndexValid(index) ? Items[index] : throw new ArgumentOutOfRangeException(nameof(index));
-			set => IsIndexValid(index) ? Items[index]=value : Insert(index, value);
+			set
+			{
+				if(IsIndexValid(index))
+					Items[index]=value;
+				else
+					Insert(index, value);
+			}
 		}
+
+
+		/// <summary>
+		/// Creates a new instance of the <see cref="VEnumerable{T}"/> collection.
+		/// </summary>
+		public VEnumerable() { }
+
+		public VEnumerable(IEnumerable<T> value) => Items=value.ToArray();
+
+		//public VEnumerable(Array value)
+		//{
+		//	var tmp=Array.CreateInstance(typeof(T), value.Length);
+		//	tmp.CopyTo(Items, 0);
+		//}
+
+		public static implicit operator VEnumerable<T>(List<T> value) => new(value.ToArray());
+		public static implicit operator VEnumerable<T>(Array value) => new(value.Cast<T>());
 
 
 		private bool PrvCheckIfLocked()
@@ -91,17 +123,17 @@ namespace VCollectionObjects
 			{
 				int score=0;
 				string name=m.Name;
-				if(accessState.HasFlag(CollectionAccessStateFlags.Read) && PrvContains(name, "IndexOf", "Contains", "GetValue"))
+				if(!(accessState.HasFlag(CollectionAccessStateFlags.Read) && PrvContains(name, "IndexOf", "Contains", "GetValue")))
 					score+=1;
-				if(accessState.HasFlag(CollectionAccessStateFlags.Remove) && PrvContains(name, "Remove"))
+				if(!(accessState.HasFlag(CollectionAccessStateFlags.Remove) && PrvContains(name, "Remove")))
 					score+=2;
-				if(accessState.HasFlag(CollectionAccessStateFlags.Add) && PrvContains(name, "Add", "Insert", "Update", "Prepend"))
+				if(!(accessState.HasFlag(CollectionAccessStateFlags.Add) && PrvContains(name, "Add", "Insert", "Update", "Prepend")))
 					score+=4;
-				if(accessState.HasFlag(CollectionAccessStateFlags.Move) && PrvContains(name, "Move"))
+				if(!(accessState.HasFlag(CollectionAccessStateFlags.Move) && PrvContains(name, "Move")))
 					score+=8;
-				if(accessState.HasFlag(CollectionAccessStateFlags.Shift) && PrvContains(name, "Shift"))
+				if(!(accessState.HasFlag(CollectionAccessStateFlags.Shift) && PrvContains(name, "Shift")))
 					score+=16;
-				if(accessState.HasFlag(CollectionAccessStateFlags.Unlocked))
+				if(!accessState.HasFlag(CollectionAccessStateFlags.Unlocked))
 					score+=32;
 				res=score<=((int)accessState);
 			}
@@ -170,7 +202,7 @@ namespace VCollectionObjects
 		/// </summary>
 		/// <param name="index"></param>
 		/// <param name="item"></param>
-		protected void Insert(int index, T item)
+		protected void Insert(int index, T? item)
 		{
 			if(PrvCheckIfLocked())
 			{
