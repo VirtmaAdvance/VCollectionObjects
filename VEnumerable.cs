@@ -289,6 +289,12 @@ namespace VCollectionObjects
 					array[^1]=sel;
 				}
 		}
+		/// <inheritdoc cref="Enumerable.Any{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
+		public bool Any(Func<T?, bool> predicate) => Items.Any(predicate);
+		/// <inheritdoc cref="Enumerable.All{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
+		public bool All(Func<T?, bool> predicate) => Items.All(predicate);
+		/// <inheritdoc cref="Enumerable.Count{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
+		public int Count(Func<T?, bool> predicate) => Items.Count(predicate);
 		/// <summary>
 		/// Gets the index position of the first occurence of a matching value.
 		/// </summary>
@@ -347,5 +353,21 @@ namespace VCollectionObjects
 		public IEnumerator GetEnumerator() => Items.GetEnumerator();
 		/// <inheritdoc cref="GetEnumerator()"/>
 		IEnumerator<T?> IEnumerable<T?>.GetEnumerator() => (IEnumerator<T?>)GetEnumerator();
+		/// <summary>
+		/// Gets the <see cref="IEnumerator{T?}"/> representation of this object.
+		/// </summary>
+		/// <returns>the <see cref="IEnumerator{T?}"/> representation of this object.</returns>
+		public IEnumerator<T?> ToEnumerator() => (IEnumerator<T?>)GetEnumerator();
+		/// <summary>
+		/// Gets the array representation of this object.
+		/// </summary>
+		/// <returns>the <see cref="T?"/>[] representation of this object.</returns>
+		public T?[] ToArray() => Items;
+		/// <summary>
+		/// Gets the <see cref="List{T?}"/> representation of this object.
+		/// </summary>
+		/// <returns>the <see cref="List{T?}"/> representation of this object.</returns>
+		public List<T?> ToList() => Items.ToList();
+
 	}
 }
