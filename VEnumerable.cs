@@ -97,7 +97,6 @@ namespace VCollectionObjects
 		/// <inheritdoc cref="VEnumerable{T}"/>
 		public static implicit operator VEnumerable<T>(Array value) => new(value.Cast<T>());
 
-
 		private bool PrvCheckIfLocked()
 		{
 			bool res=false;
