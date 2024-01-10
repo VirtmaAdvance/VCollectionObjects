@@ -92,7 +92,9 @@ namespace VCollectionObjects
 		public VEnumerable() { }
 		/// <inheritdoc cref="VEnumerable{T}"/>
 		public VEnumerable(IEnumerable<T> value) => Items=value.ToArray();
+		/// <inheritdoc cref="VEnumerable{T}"/>
 		public static implicit operator VEnumerable<T>(List<T> value) => new(value.ToArray());
+		/// <inheritdoc cref="VEnumerable{T}"/>
 		public static implicit operator VEnumerable<T>(Array value) => new(value.Cast<T>());
 
 
