@@ -9,14 +9,19 @@ namespace VCollectionObjects
 	/// Provides a more advanced means to manages a collection of items in a one-dimensional array.
 	/// </summary>
 	/// <typeparam name="T">The <see cref="Type"/> to use for the values stored within this collection.</typeparam>
-	public class VEnumerable<T> : IVEnumerable, IEnumerable<T?>
+	public class VEnumerable<T> : IVEnumerable, IEnumerable<T>
 	{
 
 		internal static VEnumerableVersion VersionInfo = new ("Archon","0.0","0.0");
+		private T[] _items=[];
 		/// <summary>
 		/// The collection of items.
 		/// </summary>
-		protected T?[] Items=[];
+		public T[] Items
+		{
+			get => _items;
+			set => _items = value??[];
+		}
 		/// <summary>
 		/// Invoked right before adding an item to the collection.
 		/// </summary>
@@ -62,7 +67,7 @@ namespace VCollectionObjects
 		/// <summary>
 		/// The number of items within this collection.
 		/// </summary>
-		public int Length => Items.Length;
+		public int Length => _items.Length;
 		/// <summary>
 		/// Indicates that all items will be shifted to the left when an item is removed to account for the removal of the item.
 		/// </summary>
@@ -86,13 +91,13 @@ namespace VCollectionObjects
 		/// <param name="index">The index position to get or set the the value.</param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		protected T? this[int index]
+		protected T this[int index]
 		{
-			get => IsIndexValid(index) ? Items[index] : throw new ArgumentOutOfRangeException(nameof(index));
+			get => IsIndexValid(index) ? _items[index] : throw new ArgumentOutOfRangeException(nameof(index));
 			set
 			{
 				if(IsIndexValid(index))
-					Items[index]=value;
+					_items[index]=value;
 				else
 					Insert(index, value);
 			}
@@ -104,7 +109,7 @@ namespace VCollectionObjects
 		/// </summary>
 		public VEnumerable() { }
 		/// <inheritdoc cref="VEnumerable{T}"/>
-		public VEnumerable(IEnumerable<T> value) => Items=value.ToArray();
+		public VEnumerable(IEnumerable<T> value) => _items=value.ToArray();
 		/// <inheritdoc cref="VEnumerable{T}"/>
 		public static implicit operator VEnumerable<T>(List<T> value) => new(value.ToArray());
 		/// <inheritdoc cref="VEnumerable{T}"/>
@@ -161,18 +166,18 @@ namespace VCollectionObjects
 		/// Adds an item to the collection.
 		/// </summary>
 		/// <param name="item">The item to add to the collection.</param>
-		protected void Add(T? item)
+		protected void Add(T item)
 		{
 			if(PrvCheckIfLocked())
 			{
 				Adding?.Invoke(this, item);
 				Resize(Length+1);
-				Items[^1]=item;
+				_items[^1]=item;
 				Added?.Invoke(this, item);
 			}
 		}
 		/// <inheritdoc cref="Add(T)"/>
-		protected void Add(params T?[] items)
+		protected void Add(params T[] items)
 		{
 			if(PrvCheckIfLocked())
 				foreach(var sel in items)
@@ -185,24 +190,24 @@ namespace VCollectionObjects
 		/// <returns>a <see cref="bool">boolean</see> value representing success or failure.</returns>
 		protected bool Contains(T? item) => PrvContains(item);
 
-		private bool PrvContains(T? item) => Items.Contains(item);
+		private bool PrvContains(T? item) => _items.Contains(item);
 		/// <summary>
 		/// Gets the element at the given <paramref name="index"/> position in the collection.
 		/// </summary>
 		/// <param name="index">An <see cref="int"/> value used to reference the index position of the element to get.</param>
 		/// <returns>the <see cref="T?"/> object found at the specified <paramref name="index"/> position.</returns>
-		public T? GetElementAt(int index) => Items[index];
+		public T? GetElementAt(int index) => _items[index];
 		/// <summary>
 		/// Attempts to get the element at the given <paramref name="index"/> position.
 		/// </summary>
 		/// <param name="index">An <see cref="int"/> value used to reference the index position of the element to get.</param>
-		/// <returns>the <see cref="T?"/> object found at the specified <paramref name="index"/> position.</returns>
-		public T? TryGetElementAt(int index) => IsIndexValid(index) ? Items[index] : default;
+		/// <returns>the <see cref="T"/> object found at the specified <paramref name="index"/> position.</returns>
+		public T? TryGetElementAt(int index) => IsIndexValid(index) ? _items[index] : default;
 		/// <summary>
 		/// Removes an item from the collection.
 		/// </summary>
 		/// <param name="item"></param>
-		protected void Remove(T? item)
+		protected void Remove(T item)
 		{
 			if(PrvCheckIfLocked() && PrvContains(item))
 			{
@@ -211,12 +216,12 @@ namespace VCollectionObjects
 			}
 		}
 
-		private void PrvRemoveOp(T? item)
+		private void PrvRemoveOp(T item)
 		{
 			if(UseShiftingWhenRemoving)
 				ShiftLeft(IndexOf(item), 1);
 			else
-				IterateAcceptValid(ref Items, q => IsValueEqual(item, q));
+				IterateAcceptValid(ref _items, q => IsValueEqual(item, q));
 		}
 		/// <inheritdoc cref="Array.Clear(Array)"/>
 		protected void Clear()
@@ -224,7 +229,7 @@ namespace VCollectionObjects
 			if(PrvCheckIfLocked())
 			{
 				Clearing?.Invoke(this, null);
-				Array.Clear(Items);
+				Array.Clear(_items);
 				Cleared?.Invoke(this, null);
 			}
 		}
@@ -233,30 +238,30 @@ namespace VCollectionObjects
 		/// </summary>
 		/// <param name="index"></param>
 		/// <param name="item"></param>
-		protected void Insert(int index, T? item)
+		protected void Insert(int index, T item)
 		{
 			if(PrvCheckIfLocked() && IsIndexValid(index))
 				PrvInsertOp(index, item);
 		}
 
-		private void PrvInsertOp(int index, T? item)
+		private void PrvInsertOp(int index, T item)
 		{
 			ShiftRight(index, 1);
-			Items[index]=item;
+			_items[index]=item;
 			Added?.Invoke(this, index);
 		}
 		/// <summary>
 		/// Prepends an item to the collection.
 		/// </summary>
 		/// <param name="items"></param>
-		protected void Prepend(params T?[] items)
+		protected void Prepend(params T[] items)
 		{
 			if(PrvCheckIfLocked())
 			{
 				int len=items.Length;
 				Move(0, len);
 				for(int i = 0;i<len;i++)
-					Items[i]=items[i];
+					_items[i]=items[i];
 				Added?.Invoke(this, null);
 			}
 		}
@@ -294,16 +299,16 @@ namespace VCollectionObjects
 
 		private void PrvMoveOp(int sourceIndex, int destinationIndex)
 		{
-			T? tmp=Items[sourceIndex];
+			T? tmp=_items[sourceIndex];
 			destinationIndex=PrvMoveOpCond(destinationIndex);
-			Items[destinationIndex]=tmp;
+			_items[destinationIndex]=tmp;
 		}
 
 		private int PrvMoveOpCond(int destinationIndex) => destinationIndex>=Length ? PrvMoveOpResize(destinationIndex) : destinationIndex<0 ? PrvMoveShiftRightOpWhenLessThanZero(destinationIndex) : destinationIndex;
 
 		private int PrvMoveOpResize(int destinationIndex)
 		{
-			Resize(ref Items, destinationIndex+1);
+			Resize(ref _items, destinationIndex+1);
 			return destinationIndex;
 		}
 
@@ -317,7 +322,7 @@ namespace VCollectionObjects
 		/// </summary>
 		/// <param name="array"></param>
 		/// <param name="predicate"></param>
-		protected static void IterateAcceptValid(ref T?[] array, Func<T?, bool> predicate)
+		protected static void IterateAcceptValid(ref T[] array, Func<T, bool> predicate)
 		{
 			var tmp=array;
 			Array.Clear(array);
@@ -329,22 +334,22 @@ namespace VCollectionObjects
 				}
 		}
 		/// <inheritdoc cref="Enumerable.Any{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
-		public bool Any(Func<T?, bool> predicate) => Items.Any(predicate);
+		public bool Any(Func<T, bool> predicate) => _items.Any(predicate);
 		/// <inheritdoc cref="Enumerable.All{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
-		public bool All(Func<T?, bool> predicate) => Items.All(predicate);
+		public bool All(Func<T, bool> predicate) => _items.All(predicate);
 		/// <inheritdoc cref="Enumerable.Count{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
-		public int Count(Func<T?, bool> predicate) => Items.Count(predicate);
+		public int Count(Func<T, bool> predicate) => _items.Count(predicate);
 		/// <inheritdoc cref="Enumerable.Count()"/>
-		public int Count() => Items is not null ? Items.Count() : 0;
+		public int Count() => _items is not null ? _items.Count() : 0;
 		/// <summary>
 		/// Gets the index position of the first occurence of a matching value.
 		/// </summary>
 		/// <param name="item">The value to look for.</param>
 		/// <returns>an <see cref="int"/> representing the index position.</returns>
-		protected int IndexOf(T? item)
+		protected int IndexOf(T item)
 		{
 			for(int i=0;i<Length;i++)
-				if(IsValueEqual(item, Items[i]))
+				if(IsValueEqual(item, _items[i]))
 					return i;
 			return -1;
 		}
@@ -363,7 +368,7 @@ namespace VCollectionObjects
 		{
 			if(PrvCheckIfLocked())
 			{
-				Resize(ref Items, length);
+				Resize(ref _items, length);
 				Resized?.Invoke(this, length);
 			}
 		}
@@ -372,7 +377,7 @@ namespace VCollectionObjects
 		/// </summary>
 		/// <param name="array"></param>
 		/// <param name="length"></param>
-		protected static void Resize(ref T?[] array, int length) => Array.Resize(ref array, length);
+		protected static void Resize(ref T[] array, int length) => Array.Resize(ref array, length);
 		/// <summary>
 		/// Determines if the given <paramref name="index"/> is a valid index within the collection range.
 		/// </summary>
@@ -391,35 +396,26 @@ namespace VCollectionObjects
 		/// Gets the enumerator for this object.
 		/// </summary>
 		/// <returns>the <see cref="IEnumerator{T}"/> for the collection.</returns>
-		public IEnumerator GetEnumerator() => Items.GetEnumerator();
+		public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)_items.GetEnumerator();
 		/// <inheritdoc cref="GetEnumerator()"/>
-		IEnumerator<T?> IEnumerable<T?>.GetEnumerator() => (IEnumerator<T?>)GetEnumerator();
-
-		private void Dev()
-		{
-			Dictionary<
-			foreach(var sel in new VEnumerable<string>())
-			{
-
-			}
-		}
+		IEnumerator<T> IEnumerable<T>.GetEnumerator() => (IEnumerator<T>)GetEnumerator();
 		/// <summary>
-		/// Gets the <see cref="IEnumerator{T?}"/> representation of this object.
+		/// Gets the <see cref="IEnumerator{T}"/> representation of this object.
 		/// </summary>
-		/// <returns>the <see cref="IEnumerator{T?}"/> representation of this object.</returns>
-		public IEnumerator<T?> ToEnumerator() => (IEnumerator<T?>)GetEnumerator();
+		/// <returns>the <see cref="IEnumerator{T}"/> representation of this object.</returns>
+		public IEnumerator<T> ToEnumerator() => (IEnumerator<T>)GetEnumerator();
 		/// <summary>
 		/// Gets the array representation of this object.
 		/// </summary>
 		/// <returns>the <see cref="T?"/>[] representation of this object.</returns>
-		public T?[] ToArray() => Items;
+		public T[] ToArray() => _items;
 		/// <summary>
-		/// Gets the <see cref="List{T?}"/> representation of this object.
+		/// Gets the <see cref="List{T}"/> representation of this object.
 		/// </summary>
-		/// <returns>the <see cref="List{T?}"/> representation of this object.</returns>
-		public List<T?> ToList() => Items.ToList();
+		/// <returns>the <see cref="List{T}"/> representation of this object.</returns>
+		public List<T> ToList() => _items.ToList();
 		/// <inheritdoc cref="object.ToString()"/>
-		public new string? ToString() => Items.ToString();
+		public new string? ToString() => _items.ToString();
 		/// <summary>
 		/// Gets a JSON string representation of this collection.
 		/// </summary>
@@ -427,7 +423,7 @@ namespace VCollectionObjects
 		public string ToJsonString()
 		{
 			string res="";
-			foreach(var sel in Items)
+			foreach(var sel in _items)
 				res+=(res.Length>0 ? ", " : "") + GetStringValue(sel);
 			return "["+res+"]";
 		}
@@ -464,14 +460,14 @@ namespace VCollectionObjects
 
 		private static bool IsKeyValurPair(object obj) => (obj is not null) && obj.GetType().Name.Contains("keyvaluepair", StringComparison.CurrentCultureIgnoreCase);
 
-		public void Dispose() => Array.Clear(Items);
+		public void Dispose() => Array.Clear(_items);
 
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			throw new NotImplementedException();
-			ArgumentNullException.ThrowIfNull(info);
-			info.AddValue(VersionInfo.VersionName, VersionInfo.Version);
-			// Continue...
+			//ArgumentNullException.ThrowIfNull(info);
+			//info.AddValue(VersionInfo.VersionName, VersionInfo.Version);
+			//// Continue...
 		}
 
 		public void OnDeserialization(object? sender)
@@ -487,5 +483,7 @@ namespace VCollectionObjects
 				throw new InvalidDataException();
 
 		}
+
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
 }
