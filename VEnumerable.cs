@@ -199,7 +199,6 @@ namespace VCollectionObjects
 		//public IEnumerable<TResult> Select<TResult>(Func<T? , int, TResult> predicate) => Items.Select(predicate);
 		///// <inheritdoc cref="Enumerable.Select{TSource, TResult}(IEnumerable{TSource}, Func{TSource, int, TResult})"/>
 		//public IEnumerable<TResult> Select<TResult>(Func<T?, TResult> predicate) => Items.Select(predicate);
-
 		/// <summary>
 		/// Removes an item from the collection.
 		/// </summary>
