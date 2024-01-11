@@ -196,7 +196,7 @@ namespace VCollectionObjects
 		/// </summary>
 		/// <param name="index">An <see cref="int"/> value used to reference the index position of the element to get.</param>
 		/// <returns>the <see cref="T?"/> object found at the specified <paramref name="index"/> position.</returns>
-		public T? GetElementAt(int index) => _items[index];
+		public T GetElementAt(int index) => _items[index];
 		/// <summary>
 		/// Attempts to get the element at the given <paramref name="index"/> position.
 		/// </summary>
@@ -211,6 +211,16 @@ namespace VCollectionObjects
 		{
 			if(PrvCheckIfLocked() && PrvContains(item))
 			{
+				Removing?.Invoke(this, item);
+				PrvRemoveOp(item);
+			}
+		}
+
+		protected void RemoveAt(int index)
+		{
+			if(PrvCheckIfLocked() && IsIndexValid(index))
+			{
+				T item=GetElementAt(index);
 				Removing?.Invoke(this, item);
 				PrvRemoveOp(item);
 			}
