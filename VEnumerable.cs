@@ -185,20 +185,6 @@ namespace VCollectionObjects
 		/// <param name="index">An <see cref="int"/> value used to reference the index position of the element to get.</param>
 		/// <returns>the <see cref="T?"/> object found at the specified <paramref name="index"/> position.</returns>
 		public T? TryGetElementAt(int index) => IsIndexValid(index) ? Items[index] : default;
-		///// <inheritdoc cref="Enumerable.FirstOrDefault{TSource}(IEnumerable{TSource}, Func{TSource, bool}, TSource)"/>
-		//public T? FirstOrDefault(Func<T?, bool> predicate, T? defaultValue) => Items.FirstOrDefault(predicate, defaultValue);
-		///// <inheritdoc cref="Enumerable.FirstOrDefault{TSource}(IEnumerable{TSource}, Func{TSource, bool}, TSource)"/>
-		//public T? FirstOrDefault(Func<T?, bool> predicate) => Items.FirstOrDefault(predicate);
-		///// <inheritdoc cref="Enumerable.FirstOrDefault{TSource}(IEnumerable{TSource}, Func{TSource, bool}, TSource)"/>
-		//public T? FirstOrDefault() => Items.FirstOrDefault();
-		///// <inheritdoc cref="Enumerable.First{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
-		//public T? First(Func<T?, bool> predicate) => Items.First(predicate);
-		///// <inheritdoc cref="Enumerable.First{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
-		//public T? First() => Items.First();
-		///// <inheritdoc cref="Enumerable.Select{TSource, TResult}(IEnumerable{TSource}, Func{TSource, int, TResult})"/>
-		//public IEnumerable<TResult> Select<TResult>(Func<T? , int, TResult> predicate) => Items.Select(predicate);
-		///// <inheritdoc cref="Enumerable.Select{TSource, TResult}(IEnumerable{TSource}, Func{TSource, int, TResult})"/>
-		//public IEnumerable<TResult> Select<TResult>(Func<T?, TResult> predicate) => Items.Select(predicate);
 		/// <summary>
 		/// Removes an item from the collection.
 		/// </summary>
