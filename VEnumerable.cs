@@ -457,8 +457,7 @@ namespace VCollectionObjects
 
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
-			if(info is null)
-				throw new ArgumentNullException(nameof(info));
+			ArgumentNullException.ThrowIfNull(info);
 			info.AddValue(VersionInfo.VersionName, VersionInfo.Version);
 			// Continue...
 		}
