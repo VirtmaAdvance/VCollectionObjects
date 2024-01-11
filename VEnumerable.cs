@@ -457,6 +457,7 @@ namespace VCollectionObjects
 
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
+			throw new NotImplementedException();
 			ArgumentNullException.ThrowIfNull(info);
 			info.AddValue(VersionInfo.VersionName, VersionInfo.Version);
 			// Continue...
