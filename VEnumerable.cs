@@ -161,7 +161,7 @@ namespace VCollectionObjects
 		/// Adds an item to the collection.
 		/// </summary>
 		/// <param name="item">The item to add to the collection.</param>
-		protected void Add(T item)
+		protected void Add(T? item)
 		{
 			if(PrvCheckIfLocked())
 			{
@@ -172,7 +172,7 @@ namespace VCollectionObjects
 			}
 		}
 		/// <inheritdoc cref="Add(T)"/>
-		protected void Add(params T[] items)
+		protected void Add(params T?[] items)
 		{
 			if(PrvCheckIfLocked())
 				foreach(var sel in items)
@@ -183,7 +183,7 @@ namespace VCollectionObjects
 		/// </summary>
 		/// <param name="item">The item to look for.</param>
 		/// <returns>a <see cref="bool">boolean</see> value representing success or failure.</returns>
-		public bool Contains(T? item) => PrvContains(item);
+		protected bool Contains(T? item) => PrvContains(item);
 
 		private bool PrvContains(T? item) => Items.Contains(item);
 		/// <summary>
