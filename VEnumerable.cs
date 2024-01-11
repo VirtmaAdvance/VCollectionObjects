@@ -161,7 +161,7 @@ namespace VCollectionObjects
 		/// Adds an item to the collection.
 		/// </summary>
 		/// <param name="item">The item to add to the collection.</param>
-		public void Add(T item)
+		protected void Add(T item)
 		{
 			if(PrvCheckIfLocked())
 			{
@@ -172,7 +172,7 @@ namespace VCollectionObjects
 			}
 		}
 		/// <inheritdoc cref="Add(T)"/>
-		public void Add(params T[] items)
+		protected void Add(params T[] items)
 		{
 			if(PrvCheckIfLocked())
 				foreach(var sel in items)
@@ -202,7 +202,7 @@ namespace VCollectionObjects
 		/// Removes an item from the collection.
 		/// </summary>
 		/// <param name="item"></param>
-		public void Remove(T? item)
+		protected void Remove(T? item)
 		{
 			if(PrvCheckIfLocked() && PrvContains(item))
 			{
@@ -219,7 +219,7 @@ namespace VCollectionObjects
 				IterateAcceptValid(ref Items, q => IsValueEqual(item, q));
 		}
 		/// <inheritdoc cref="Array.Clear(Array)"/>
-		public void Clear()
+		protected void Clear()
 		{
 			if(PrvCheckIfLocked())
 			{
@@ -334,6 +334,8 @@ namespace VCollectionObjects
 		public bool All(Func<T?, bool> predicate) => Items.All(predicate);
 		/// <inheritdoc cref="Enumerable.Count{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
 		public int Count(Func<T?, bool> predicate) => Items.Count(predicate);
+		/// <inheritdoc cref="Enumerable.Count()"/>
+		public int Count() => Items is not null ? Items.Count() : 0;
 		/// <summary>
 		/// Gets the index position of the first occurence of a matching value.
 		/// </summary>
