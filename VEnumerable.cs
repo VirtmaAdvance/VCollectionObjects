@@ -394,6 +394,15 @@ namespace VCollectionObjects
 		public IEnumerator GetEnumerator() => Items.GetEnumerator();
 		/// <inheritdoc cref="GetEnumerator()"/>
 		IEnumerator<T?> IEnumerable<T?>.GetEnumerator() => (IEnumerator<T?>)GetEnumerator();
+
+		private void Dev()
+		{
+			Dictionary<
+			foreach(var sel in new VEnumerable<string>())
+			{
+
+			}
+		}
 		/// <summary>
 		/// Gets the <see cref="IEnumerator{T?}"/> representation of this object.
 		/// </summary>
