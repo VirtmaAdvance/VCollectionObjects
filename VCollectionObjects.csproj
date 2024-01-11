@@ -4,6 +4,16 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Title>VCollectionObjects</Title>
+    <Authors>Daniel K. Valente</Authors>
+    <Company>VAdvance</Company>
+    <Description>Provides a package of classes, structs, and enums designed for collection management.
+Designed to be inherited from for additional functionality and scalability.</Description>
+    <Copyright>BSD-3-Clause</Copyright>
+    <PackageTags>vadvance;collection;array;enumerable;iterable;iterate;dictionary;list;serialization;json</PackageTags>
+    <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
 </Project>

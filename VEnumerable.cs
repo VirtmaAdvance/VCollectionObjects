@@ -84,6 +84,13 @@ namespace VCollectionObjects
 		/// Specifies the access state for this collection.
 		/// </summary>
 		protected CollectionAccessStateFlags AccessState { get; set; } = CollectionAccessStateFlags.Unlocked;
+
+		int ICollection.Count => throw new NotImplementedException();
+		/// <inheritdoc cref="ICollection.IsSynchronized"/>
+		public bool IsSynchronized => throw new NotImplementedException();
+		/// <inheritdoc cref="ICollection.SyncRoot"/>
+		public object SyncRoot => throw new NotImplementedException();
+
 		/// <summary>
 		/// Gets or sets the value at a given <paramref name="index"/> in the collection.
 		/// </summary>
@@ -195,13 +202,13 @@ namespace VCollectionObjects
 		/// Gets the element at the given <paramref name="index"/> position in the collection.
 		/// </summary>
 		/// <param name="index">An <see cref="int"/> value used to reference the index position of the element to get.</param>
-		/// <returns>the <see cref="T?"/> object found at the specified <paramref name="index"/> position.</returns>
+		/// <returns>the <typeparamref name="T"/> object found at the specified <paramref name="index"/> position.</returns>
 		public T GetElementAt(int index) => _items[index];
 		/// <summary>
 		/// Attempts to get the element at the given <paramref name="index"/> position.
 		/// </summary>
 		/// <param name="index">An <see cref="int"/> value used to reference the index position of the element to get.</param>
-		/// <returns>the <see cref="T"/> object found at the specified <paramref name="index"/> position.</returns>
+		/// <returns>the <typeparamref name="T"/> object found at the specified <paramref name="index"/> position.</returns>
 		public T? TryGetElementAt(int index) => IsIndexValid(index) ? _items[index] : default;
 		/// <summary>
 		/// Removes an item from the collection.
@@ -215,7 +222,10 @@ namespace VCollectionObjects
 				PrvRemoveOp(item);
 			}
 		}
-
+		/// <summary>
+		/// Removes the item at the given <paramref name="index"/>.
+		/// </summary>
+		/// <param name="index"></param>
 		protected void RemoveAt(int index)
 		{
 			if(PrvCheckIfLocked() && IsIndexValid(index))
@@ -349,7 +359,7 @@ namespace VCollectionObjects
 		public bool All(Func<T, bool> predicate) => _items.All(predicate);
 		/// <inheritdoc cref="Enumerable.Count{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
 		public int Count(Func<T, bool> predicate) => _items.Count(predicate);
-		/// <inheritdoc cref="Enumerable.Count()"/>
+		/// <inheritdoc cref="Enumerable.Count{TSource}(IEnumerable{TSource})"/>
 		public int Count() => _items is not null ? _items.Count() : 0;
 		/// <summary>
 		/// Gets the index position of the first occurence of a matching value.
@@ -413,11 +423,11 @@ namespace VCollectionObjects
 		/// Gets the <see cref="IEnumerator{T}"/> representation of this object.
 		/// </summary>
 		/// <returns>the <see cref="IEnumerator{T}"/> representation of this object.</returns>
-		public IEnumerator<T> ToEnumerator() => (IEnumerator<T>)GetEnumerator();
+		public IEnumerator<T> ToEnumerator() => GetEnumerator();
 		/// <summary>
 		/// Gets the array representation of this object.
 		/// </summary>
-		/// <returns>the <see cref="T?"/>[] representation of this object.</returns>
+		/// <returns>the <typeparamref name="T"/>[] representation of this object.</returns>
 		public T[] ToArray() => _items;
 		/// <summary>
 		/// Gets the <see cref="List{T}"/> representation of this object.
@@ -469,9 +479,16 @@ namespace VCollectionObjects
 		}
 
 		private static bool IsKeyValurPair(object obj) => (obj is not null) && obj.GetType().Name.Contains("keyvaluepair", StringComparison.CurrentCultureIgnoreCase);
-
+		/// <summary>
+		/// Disposes this object.
+		/// </summary>
 		public void Dispose() => Array.Clear(_items);
-
+		/// <summary>
+		/// Gets the object data.
+		/// </summary>
+		/// <param name="info"></param>
+		/// <param name="context"></param>
+		/// <exception cref="NotImplementedException"></exception>
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			throw new NotImplementedException();
@@ -479,12 +496,21 @@ namespace VCollectionObjects
 			//info.AddValue(VersionInfo.VersionName, VersionInfo.Version);
 			//// Continue...
 		}
-
+		/// <summary>
+		/// Performs an operation on deserialization.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <exception cref="NotImplementedException"></exception>
 		public void OnDeserialization(object? sender)
 		{
 			throw new NotImplementedException();
 		}
-
+		/// <summary>
+		/// Compares this object to another.
+		/// </summary>
+		/// <param name="obj"></param>
+		/// <returns></returns>
+		/// <exception cref="InvalidDataException"></exception>
 		public int CompareTo(object? obj)
 		{
 			if(obj is IVEnumerable value)
@@ -495,5 +521,15 @@ namespace VCollectionObjects
 		}
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+		/// <summary>
+		/// Copies this object to another.
+		/// </summary>
+		/// <param name="array"></param>
+		/// <param name="index"></param>
+		/// <exception cref="NotImplementedException"></exception>
+		public void CopyTo(Array array, int index)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
