@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace VCollectionObjects
 {
@@ -8,8 +9,10 @@ namespace VCollectionObjects
 	/// Provides a more advanced means to manages a collection of items in a one-dimensional array.
 	/// </summary>
 	/// <typeparam name="T">The <see cref="Type"/> to use for the values stored within this collection.</typeparam>
-	public class VEnumerable<T>:IEnumerable, IEnumerable<T?>
+	public class VEnumerable<T> : IVEnumerable, IEnumerable<T?>
 	{
+
+		internal static VEnumerableVersion VersionInfo = new ("Archon","0.0","0.0");
 		/// <summary>
 		/// The collection of items.
 		/// </summary>
@@ -46,6 +49,16 @@ namespace VCollectionObjects
 		/// Invoked when the collection was resized.
 		/// </summary>
 		protected event GenericCollectionEvent? Resized;
+		/// <summary>
+		/// Invoked right before an item is moved to another index within the collection.
+		/// </summary>
+		/// <remarks>Provides the collection object as the first argument, and an array consisting of the index of the object being moved, and the index the object was moved to.</remarks>
+		protected event GenericCollectionEvent? Moving;
+		/// <summary>
+		/// Invoked when an item within the collection was moved/transferred to another index within the collection.
+		/// </summary>
+		/// <remarks>Provides the collection object as the first argument, and an array consisting of the index of the object being moved, and the index the object was moved to.</remarks>
+		protected event GenericCollectionEvent? Moved;
 		/// <summary>
 		/// The number of items within this collection.
 		/// </summary>
@@ -162,17 +175,17 @@ namespace VCollectionObjects
 		public void Add(params T[] items)
 		{
 			if(PrvCheckIfLocked())
-			{
 				foreach(var sel in items)
 					Add(sel);
-			}
 		}
 		/// <summary>
 		/// Determines if the collection contains the <paramref name="item"/>.
 		/// </summary>
 		/// <param name="item">The item to look for.</param>
 		/// <returns>a <see cref="bool">boolean</see> value representing success or failure.</returns>
-		public bool Contains(T? item) => Items.Contains(item);
+		public bool Contains(T? item) => PrvContains(item);
+
+		private bool PrvContains(T? item) => Items.Contains(item);
 		/// <summary>
 		/// Gets the element at the given <paramref name="index"/> position in the collection.
 		/// </summary>
@@ -191,16 +204,28 @@ namespace VCollectionObjects
 		/// <param name="item"></param>
 		public void Remove(T? item)
 		{
-			if(PrvCheckIfLocked())
+			if(PrvCheckIfLocked() && PrvContains(item))
 			{
 				Removing?.Invoke(this, item);
-				if(Contains(item))
-				{
-					if(UseShiftingWhenRemoving)
-						ShiftLeft(IndexOf(item), 1);
-					else
-						IterateAcceptValid(ref Items, q => IsValueEqual(item, q));
-				}
+				PrvRemoveOp(item);
+			}
+		}
+
+		private void PrvRemoveOp(T? item)
+		{
+			if(UseShiftingWhenRemoving)
+				ShiftLeft(IndexOf(item), 1);
+			else
+				IterateAcceptValid(ref Items, q => IsValueEqual(item, q));
+		}
+		/// <inheritdoc cref="Array.Clear(Array)"/>
+		public void Clear()
+		{
+			if(PrvCheckIfLocked())
+			{
+				Clearing?.Invoke(this, null);
+				Array.Clear(Items);
+				Cleared?.Invoke(this, null);
 			}
 		}
 		/// <summary>
@@ -210,15 +235,15 @@ namespace VCollectionObjects
 		/// <param name="item"></param>
 		protected void Insert(int index, T? item)
 		{
-			if(PrvCheckIfLocked())
-			{
-				if(IsIndexValid(index))
-				{
-					ShiftRight(index, 1);
-					Items[index]=item;
-					Added?.Invoke(this, index);
-				}
-			}
+			if(PrvCheckIfLocked() && IsIndexValid(index))
+				PrvInsertOp(index, item);
+		}
+
+		private void PrvInsertOp(int index, T? item)
+		{
+			ShiftRight(index, 1);
+			Items[index]=item;
+			Added?.Invoke(this, index);
 		}
 		/// <summary>
 		/// Prepends an item to the collection.
@@ -242,11 +267,8 @@ namespace VCollectionObjects
 		protected void ShiftRight(int startingIndex, int shiftLength)
 		{
 			if(PrvCheckIfLocked())
-			{
-				int len=Length;
-				for(int i = len;i>=startingIndex;i--)
+				for(int i = Length;i>=startingIndex;i--)
 					Move(i, i+shiftLength);
-			}
 		}
 		/// <summary>
 		/// Shifts the items starting from the <paramref name="startingIndex"/> to the left of the array <paramref name="shiftLength"/> many times.
@@ -256,10 +278,8 @@ namespace VCollectionObjects
 		protected void ShiftLeft(int startingIndex, int shiftLength)
 		{
 			if(PrvCheckIfLocked())
-			{
 				for(int i = startingIndex;i<startingIndex+shiftLength;i++)
 					Move(i, i-shiftLength);
-			}
 		}
 		/// <summary>
 		/// Copys the element at the <paramref name="sourceIndex"/> to the <paramref name="destinationIndex"/>.
@@ -268,22 +288,29 @@ namespace VCollectionObjects
 		/// <param name="destinationIndex">The index position to move the element at the <paramref name="sourceIndex"/> to.</param>
 		protected void Move(int sourceIndex, int destinationIndex)
 		{
-			if(PrvCheckIfLocked())
-			{
-				if(IsIndexValid(sourceIndex))
-				{
-					T? tmp=Items[sourceIndex];
-					if(destinationIndex>=Length)
-						Resize(ref Items, destinationIndex+1);
-					else if(destinationIndex<0)
-					{
-						ShiftRight(0, Math.Abs(destinationIndex));
-						destinationIndex=0;
-					}
-					Items[destinationIndex]=tmp;
-					//Moved?.Invoke(this, new object[] { sourceIndex, destinationIndex });
-				}
-			}
+			if(PrvCheckIfLocked() && IsIndexValid(sourceIndex))
+				PrvMoveOp(sourceIndex, destinationIndex);
+		}
+
+		private void PrvMoveOp(int sourceIndex, int destinationIndex)
+		{
+			T? tmp=Items[sourceIndex];
+			destinationIndex=PrvMoveOpCond(destinationIndex);
+			Items[destinationIndex]=tmp;
+		}
+
+		private int PrvMoveOpCond(int destinationIndex) => destinationIndex>=Length ? PrvMoveOpResize(destinationIndex) : destinationIndex<0 ? PrvMoveShiftRightOpWhenLessThanZero(destinationIndex) : destinationIndex;
+
+		private int PrvMoveOpResize(int destinationIndex)
+		{
+			Resize(ref Items, destinationIndex+1);
+			return destinationIndex;
+		}
+
+		private int PrvMoveShiftRightOpWhenLessThanZero(int destinationIndex)
+		{
+			ShiftRight(0, Math.Abs(destinationIndex));
+			return 0;
 		}
 		/// <summary>
 		/// Iterates through the <paramref name="array"/> and only includes the items that pass the <paramref name="predicate"/>.
@@ -382,7 +409,10 @@ namespace VCollectionObjects
 		public List<T?> ToList() => Items.ToList();
 		/// <inheritdoc cref="object.ToString()"/>
 		public new string? ToString() => Items.ToString();
-
+		/// <summary>
+		/// Gets a JSON string representation of this collection.
+		/// </summary>
+		/// <returns>a <see cref="string"/> formatted as a JSON.</returns>
 		public string ToJsonString()
 		{
 			string res="";
@@ -403,6 +433,8 @@ namespace VCollectionObjects
 				return "\""+stringValue+"\"";
 			if(value is char charValue)
 				return "'"+charValue+"'";
+			if(IsKeyValurPair(value))
+				return GetKVPString(value);
 			if(value is IEnumerable iEnumerableValue)
 			{
 				string tmp="";
@@ -413,5 +445,36 @@ namespace VCollectionObjects
 			return value.ToString()!;
 		}
 
+		private static string GetKVPString(object obj)
+		{
+			var pInfo=obj.GetType().GetProperties();
+			return GetStringValue(pInfo[0].GetValue(obj)) + ":" + GetStringValue(pInfo[1].GetValue(obj));
+		}
+
+		private static bool IsKeyValurPair(object obj) => (obj is not null) && obj.GetType().Name.Contains("keyvaluepair", StringComparison.CurrentCultureIgnoreCase);
+
+		public void Dispose() => Array.Clear(Items);
+
+		public void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			if(info is null)
+				throw new ArgumentNullException(nameof(info));
+			info.AddValue(VersionInfo.VersionName, VersionInfo.Version);
+			// Continue...
+		}
+
+		public void OnDeserialization(object? sender)
+		{
+			throw new NotImplementedException();
+		}
+
+		public int CompareTo(object? obj)
+		{
+			if(obj is IVEnumerable value)
+				return value.Length<Length ? -1 : value.Length>Length ? 1 : 0;
+			else
+				throw new InvalidDataException();
+
+		}
 	}
 }
