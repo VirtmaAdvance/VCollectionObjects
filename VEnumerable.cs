@@ -353,10 +353,6 @@ namespace VCollectionObjects
 					array[^1]=sel;
 				}
 		}
-		/// <inheritdoc cref="Enumerable.Any{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
-		public bool Any(Func<T, bool> predicate) => _items.Any(predicate);
-		/// <inheritdoc cref="Enumerable.All{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
-		public bool All(Func<T, bool> predicate) => _items.All(predicate);
 		/// <inheritdoc cref="Enumerable.Count{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
 		public int Count(Func<T, bool> predicate) => _items.Count(predicate);
 		/// <inheritdoc cref="Enumerable.Count{TSource}(IEnumerable{TSource})"/>
@@ -459,13 +455,7 @@ namespace VCollectionObjects
 		/// Gets a JSON string representation of this collection.
 		/// </summary>
 		/// <returns>a <see cref="string"/> formatted as a JSON.</returns>
-		public string ToJsonString()
-		{
-			string res="";
-			foreach(var sel in _items)
-				res+=(res.Length>0 ? ", " : "") + GetStringValue(sel);
-			return "["+res+"]";
-		}
+		public string ToJsonString() => GetStringValue(this);
 		/// <summary>
 		/// Gets the <see cref="string"/> representation of the given <paramref name="value"/>.
 		/// </summary>
@@ -475,10 +465,16 @@ namespace VCollectionObjects
 		{
 			if(value is null)
 				return "null";
+			if(System.Runtime.InteropServices.Marshal.IsComObject(value))
+				return "COMObject";
 			if(value is string stringValue)
 				return "\""+stringValue+"\"";
 			if(value is char charValue)
 				return "'"+charValue+"'";
+			if(value is bool boolValue)
+				return boolValue ? "true" : "false";
+			if(value is Type typeValue)
+				return typeValue.Name;
 			if(IsKeyValurPair(value))
 				return GetKVPString(value);
 			if(value is IEnumerable iEnumerableValue)

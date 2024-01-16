@@ -48,9 +48,9 @@
 				Add(sel);
 		}
 		/// <inheritdoc cref="VEnumerable{T}.Contains(T)"/>
-		public bool ContainsKey(TKey key) => Any(q=>IsValueEqual(q.Key, key));
+		public bool ContainsKey(TKey key) => Items.Any(q=>IsValueEqual(q.Key, key));
 		/// <inheritdoc cref="VEnumerable{T}.Contains(T)"/>
-		public bool ContainsValue(TValue value) => Any(q=>IsValueEqual(q.Value, value));
+		public bool ContainsValue(TValue value) => Items.Any(q=>IsValueEqual(q.Value, value));
 		/// <inheritdoc cref="VEnumerable{T}.Remove(T)"/>
 		public void Remove(TKey key)
 		{
