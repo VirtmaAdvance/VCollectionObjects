@@ -1,11 +1,14 @@
-﻿namespace VCollectionObjects
+﻿using System.Runtime.InteropServices;
+
+namespace VCollectionObjects
 {
 	/// <summary>
 	/// Manages a collection of items.
 	/// </summary>
 	/// <typeparam name="TKey">The <see cref="Type"/> object for the key.</typeparam>
 	/// <typeparam name="TValue">The <see cref="Type"/> object for the value.</typeparam>
-	public class VCollection<TKey, TValue> : VEnumerable<KeyValuePair<TKey, TValue>>
+	[Guid("48CFF0F9-92EC-47B7-AE9C-E26F623932C9")]
+	public class VCollection<TKey, TValue> : VEnumerable<KeyValuePair<TKey, TValue>>, IVCollection<TKey, TValue>
 	{
 		private bool _enforceUniqueKeys=false;
 		/// <summary>

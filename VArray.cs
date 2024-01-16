@@ -1,7 +1,10 @@
-﻿namespace VCollectionObjects
+﻿using System.Runtime.InteropServices;
+
+namespace VCollectionObjects
 {
 	/// <inheritdoc cref="VEnumerable{T}"/>
-	public class VArray<T> : VEnumerable<T>
+	[Guid("C7C88D22-9617-4C8D-BD6B-AB0D3D9E72FA")]
+	public class VArray<T> : VEnumerable<T>, IVArray<T>
 	{
 		/// <summary>
 		/// Gets or sets the value at a given <paramref name="index"/> in the array.

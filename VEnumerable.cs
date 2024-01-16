@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
 namespace VCollectionObjects
@@ -9,6 +10,7 @@ namespace VCollectionObjects
 	/// Provides a more advanced means to manages a collection of items in a one-dimensional array.
 	/// </summary>
 	/// <typeparam name="T">The <see cref="Type"/> to use for the values stored within this collection.</typeparam>
+	[Guid("DFE94998-CD37-4930-8D12-1F33945D33EC")]
 	public class VEnumerable<T> : IVEnumerable, IEnumerable<T>
 	{
 

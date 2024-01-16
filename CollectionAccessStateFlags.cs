@@ -1,8 +1,11 @@
-﻿namespace VCollectionObjects
+﻿using System.Runtime.InteropServices;
+
+namespace VCollectionObjects
 {
 	/// <summary>
 	/// Provides access flags for collections.
 	/// </summary>
+	[Guid("59BFAFD3-225C-4D62-9563-19F51BF2933D")]
 	[Flags]
 	public enum CollectionAccessStateFlags : int
 	{
@@ -27,7 +30,7 @@
 		/// </summary>
 		Remove=8,
 		/// <summary>
-		/// Allows the collection to be cleared via the <see cref="VEnumerable.Clear"/> method.
+		/// Allows the collection to be cleared via the <see cref="VEnumerable{T}.Clear()"/> method.
 		/// </summary>
 		Clearable=16,
 		/// <summary>

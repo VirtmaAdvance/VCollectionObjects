@@ -1,4 +1,6 @@
-﻿namespace VCollectionObjects
+﻿using System.Runtime.InteropServices;
+
+namespace VCollectionObjects
 {
 	/// <summary>
 	/// A structured object used to store a pair of values.
@@ -8,6 +10,7 @@
 	/// </remarks>
 	/// <param name="key">The key to associate with the <paramref name="value"/>.</param>
 	/// <param name="value">The value to associate with the <paramref name="key"/>.</param>
+	[Guid("613E3BBE-0C26-434A-83B9-B8E2D19E6BBA")]
 	public struct VItem(object? key, object? value)
 	{
 		/// <summary>
@@ -19,7 +22,7 @@
 		/// </summary>
 		public object? Value { get; set; } = value;
 
-		/// <inheritdoc cref="VItem(object? object?)"/>
+		/// <inheritdoc cref="VItem(object?, object?)"/>
 		public VItem(object? value) : this(null, value) {}
 
 	}
