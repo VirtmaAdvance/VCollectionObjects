@@ -373,6 +373,25 @@ namespace VCollectionObjects
 					return i;
 			return -1;
 		}
+		/// <inheritdoc cref="IndexOf(T)"/>
+		/// <summary>
+		/// Gets the index position of the first occurence of a matching value using multi-threading methods.
+		/// </summary>
+		protected int ParallelIndexOf(T item)
+		{
+			int res=-1;
+			object lockObject=new ();
+			Parallel.For(0, Length, (i, pls) =>
+			{
+				if(IsValueEqual(item, _items[i]))
+					lock(lockObject)
+					{
+						res=i;
+						pls.Break();
+					}
+			});
+			return res;
+		}
 		/// <summary>
 		/// Determines if two values are equal to each other.
 		/// </summary>
@@ -463,13 +482,23 @@ namespace VCollectionObjects
 			if(IsKeyValurPair(value))
 				return GetKVPString(value);
 			if(value is IEnumerable iEnumerableValue)
-			{
-				string tmp="";
-				foreach(var sel in iEnumerableValue)
-					tmp+=(tmp.Length>0 ? "," : "") + GetStringValue(sel);
-				return value is IDictionary ? "{"+tmp+"}" : "["+tmp+"]";
-			}
+				return GetStringValueOfEnumerable(iEnumerableValue);
 			return value.ToString()!;
+		}
+
+		private static string GetStringValueOfEnumerable(IEnumerable source)
+		{
+			string tmp="";
+			object lockObject=new();
+			Parallel.ForEach(source.Cast<object?>(), (item, pls)=>
+			{
+				string value=GetStringValue(item);
+				lock(lockObject)
+					tmp+=(tmp.Length>0 ? "," : "") + value;
+			});
+			//foreach(var sel in source)
+			//	tmp+=(tmp.Length>0 ? "," : "") + GetStringValue(sel);
+			return source is IDictionary ? "{"+tmp+"}" : "["+tmp+"]";
 		}
 
 		private static string GetKVPString(object obj)
