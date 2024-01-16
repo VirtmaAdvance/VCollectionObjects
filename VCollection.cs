@@ -25,7 +25,7 @@
 		/// Gets or sets the value at the given <paramref name="key"/>.
 		/// </summary>
 		/// <param name="key">The <see cref="TKey"/> to get or set the value.</param>
-		/// <returns>the <see cref="TValue"/>.</returns>
+		/// <returns>the <typeparamref name="TValue"/>.</returns>
 		public TValue this[TKey key]
 		{
 			get => GetPairFromKey(key).Value;

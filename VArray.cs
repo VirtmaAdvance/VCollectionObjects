@@ -3,11 +3,15 @@
 	/// <inheritdoc cref="VEnumerable{T}"/>
 	public class VArray<T> : VEnumerable<T>
 	{
-
+		/// <summary>
+		/// Gets or sets the value at a given <paramref name="index"/> in the array.
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns></returns>
 		public new T this[int index]
 		{
-			get => this[index];
-			set => this[index] = value;
+			get => base[index];
+			set => base[index] = value;
 		}
 
 		/// <inheritdoc cref="VEnumerable{T}.Add(T)"/>
