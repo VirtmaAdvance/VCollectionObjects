@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace VCollectionObjects
 {
@@ -202,6 +203,18 @@ namespace VCollectionObjects
 		/// <param name="key"></param>
 		/// <returns></returns>
 		protected static bool StaticContainsKey(KeyValuePair<TKey, TValue>[] array, TKey key) => array.Any(q=>IsValueEqual(q.Key, key));
+		/// <summary>
+		/// Generates a <see cref="VCollection{TKey, TValue}"/> collection object from the provided <paramref name="jsonString"/>.
+		/// </summary>
+		/// <param name="jsonString"></param>
+		/// <returns></returns>
+		public static VCollection<object, object>? FromJsonString(string jsonString)
+		{
+			return JsonSerializer.Deserialize<VCollection<object, object>>(jsonString, new JsonSerializerOptions()
+			{
+				ReadCommentHandling=JsonCommentHandling.Skip
+			});
+		}
 
 	}
 }
