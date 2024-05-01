@@ -14,15 +14,15 @@ namespace VCollectionObjects
 	public class VEnumerable<T> : IVEnumerable, IEnumerable<T>
 	{
 
-		internal static VEnumerableVersion VersionInfo = new ("Archon","0.0","0.0");
-		private T[] _items=[];
+		internal static VEnumerableVersion VersionInfo = new("Archon", "0.0", "0.0");
+		private T[] _items = [];
 		/// <summary>
 		/// The collection of items.
 		/// </summary>
 		public T[] Items
 		{
 			get => _items;
-			set => _items = value??[];
+			set => _items = value ?? [];
 		}
 		/// <summary>
 		/// Invoked right before adding an item to the collection.
@@ -87,7 +87,7 @@ namespace VCollectionObjects
 		/// </summary>
 		protected CollectionAccessStateFlags AccessState { get; set; } = CollectionAccessStateFlags.Unlocked;
 
-		int ICollection.Count => throw new NotImplementedException();
+		int ICollection.Count => Length;
 		/// <inheritdoc cref="ICollection.IsSynchronized"/>
 		public bool IsSynchronized => throw new NotImplementedException();
 		/// <inheritdoc cref="ICollection.SyncRoot"/>
@@ -105,8 +105,8 @@ namespace VCollectionObjects
 			get => IsIndexValid(index) ? _items[index] : throw new ArgumentOutOfRangeException(nameof(index));
 			set
 			{
-				if(IsIndexValid(index))
-					_items[index]=value;
+				if (IsIndexValid(index))
+					_items[index] = value;
 				else
 					Insert(index, value);
 			}
@@ -118,7 +118,7 @@ namespace VCollectionObjects
 		/// </summary>
 		public VEnumerable() { }
 		/// <inheritdoc cref="VEnumerable{T}"/>
-		public VEnumerable(IEnumerable<T> value) => _items=value.ToArray();
+		public VEnumerable(IEnumerable<T> value) => _items = value.ToArray();
 		/// <inheritdoc cref="VEnumerable{T}"/>
 		public static implicit operator VEnumerable<T>(List<T> value) => new(value.ToArray());
 		/// <inheritdoc cref="VEnumerable{T}"/>
@@ -126,11 +126,11 @@ namespace VCollectionObjects
 
 		private bool PrvCheckIfLocked()
 		{
-			bool res=false;
-			if(PrvCheckAccessState(AccessState))
-				res=true;
-			if(Locked)
-				res=false;
+			bool res = false;
+			if (PrvCheckAccessState(AccessState))
+				res = true;
+			if (Locked)
+				res = false;
 			//if(!res && ThrowExceptionIfLocked)
 			//	throw new Exception("Attempted to modify the collection while the collection is locked.");
 			return !res && ThrowExceptionIfLocked ? throw new Exception("Attempted to modify the collection while the collection is locked.") : res;
@@ -138,37 +138,37 @@ namespace VCollectionObjects
 
 		private static bool PrvCheckAccessState(CollectionAccessStateFlags accessState)
 		{
-			bool res=false;
-			var m=GetCallerMethod(3);
-			if(m is not null)
+			bool res = false;
+			var m = GetCallerMethod(3);
+			if (m is not null)
 			{
-				int score=0;
-				string name=m.Name;
-				if(!(accessState.HasFlag(CollectionAccessStateFlags.Read) && PrvContains(name, "IndexOf", "Contains", "GetValue")))
-					score+=1;
-				if(!(accessState.HasFlag(CollectionAccessStateFlags.Remove) && PrvContains(name, "Remove")))
-					score+=2;
-				if(!(accessState.HasFlag(CollectionAccessStateFlags.Add) && PrvContains(name, "Add", "Insert", "Update", "Prepend")))
-					score+=4;
-				if(!(accessState.HasFlag(CollectionAccessStateFlags.Move) && PrvContains(name, "Move")))
-					score+=8;
-				if(!(accessState.HasFlag(CollectionAccessStateFlags.Shift) && PrvContains(name, "Shift")))
-					score+=16;
-				if(!accessState.HasFlag(CollectionAccessStateFlags.Unlocked))
-					score+=32;
-				res=score<=((int)accessState);
+				int score = 0;
+				string name = m.Name;
+				if (!(accessState.HasFlag(CollectionAccessStateFlags.Read) && PrvContains(name, "IndexOf", "Contains", "GetValue")))
+					score += 1;
+				if (!(accessState.HasFlag(CollectionAccessStateFlags.Remove) && PrvContains(name, "Remove")))
+					score += 2;
+				if (!(accessState.HasFlag(CollectionAccessStateFlags.Add) && PrvContains(name, "Add", "Insert", "Update", "Prepend")))
+					score += 4;
+				if (!(accessState.HasFlag(CollectionAccessStateFlags.Move) && PrvContains(name, "Move")))
+					score += 8;
+				if (!(accessState.HasFlag(CollectionAccessStateFlags.Shift) && PrvContains(name, "Shift")))
+					score += 16;
+				if (!accessState.HasFlag(CollectionAccessStateFlags.Unlocked))
+					score += 32;
+				res = score <= ((int)accessState);
 			}
 			return res;
 		}
 
 		private static bool PrvContains(string source, params string[] values) => values.Any(source.Contains);
 
-		private static MethodBase? GetCallerMethod(int index=2)
+		private static MethodBase? GetCallerMethod(int index = 2)
 		{
-			StackTrace st=new ();
-			StackFrame[] frames=st.GetFrames();
-			if(frames is not null && frames.Length>index)
-				return frames[^(index+1)].GetMethod();
+			StackTrace st = new();
+			StackFrame[] frames = st.GetFrames();
+			if (frames is not null && frames.Length > index)
+				return frames[^(index + 1)].GetMethod();
 			return null;
 		}
 		/// <summary>
@@ -177,19 +177,19 @@ namespace VCollectionObjects
 		/// <param name="item">The item to add to the collection.</param>
 		protected void Add(T item)
 		{
-			if(PrvCheckIfLocked())
+			if (PrvCheckIfLocked())
 			{
 				Adding?.Invoke(this, item);
-				Resize(Length+1);
-				_items[^1]=item;
+				Resize(Length + 1);
+				_items[^1] = item;
 				Added?.Invoke(this, item);
 			}
 		}
 		/// <inheritdoc cref="Add(T)"/>
 		protected void Add(params T[] items)
 		{
-			if(PrvCheckIfLocked())
-				foreach(var sel in items)
+			if (PrvCheckIfLocked())
+				foreach (var sel in items)
 					Add(sel);
 		}
 		/// <summary>
@@ -218,7 +218,7 @@ namespace VCollectionObjects
 		/// <param name="item"></param>
 		protected void Remove(T item)
 		{
-			if(PrvCheckIfLocked() && PrvContains(item))
+			if (PrvCheckIfLocked() && PrvContains(item))
 			{
 				Removing?.Invoke(this, item);
 				PrvRemoveOp(item);
@@ -230,9 +230,9 @@ namespace VCollectionObjects
 		/// <param name="index"></param>
 		protected void RemoveAt(int index)
 		{
-			if(PrvCheckIfLocked() && IsIndexValid(index))
+			if (PrvCheckIfLocked() && IsIndexValid(index))
 			{
-				T item=GetElementAt(index);
+				T item = GetElementAt(index);
 				Removing?.Invoke(this, item);
 				PrvRemoveOp(item);
 			}
@@ -240,7 +240,7 @@ namespace VCollectionObjects
 
 		private void PrvRemoveOp(T item)
 		{
-			if(UseShiftingWhenRemoving)
+			if (UseShiftingWhenRemoving)
 				ShiftLeft(IndexOf(item), 1);
 			else
 				IterateAcceptValid(ref _items, q => IsValueEqual(item, q));
@@ -248,7 +248,7 @@ namespace VCollectionObjects
 		/// <inheritdoc cref="Array.Clear(Array)"/>
 		protected void Clear()
 		{
-			if(PrvCheckIfLocked())
+			if (PrvCheckIfLocked())
 			{
 				Clearing?.Invoke(this, null);
 				Array.Clear(_items);
@@ -262,14 +262,14 @@ namespace VCollectionObjects
 		/// <param name="item"></param>
 		protected void Insert(int index, T item)
 		{
-			if(PrvCheckIfLocked() && IsIndexValid(index))
+			if (PrvCheckIfLocked() && IsIndexValid(index))
 				PrvInsertOp(index, item);
 		}
 
 		private void PrvInsertOp(int index, T item)
 		{
 			ShiftRight(index, 1);
-			_items[index]=item;
+			_items[index] = item;
 			Added?.Invoke(this, index);
 		}
 		/// <summary>
@@ -278,12 +278,12 @@ namespace VCollectionObjects
 		/// <param name="items"></param>
 		protected void Prepend(params T[] items)
 		{
-			if(PrvCheckIfLocked())
+			if (PrvCheckIfLocked())
 			{
-				int len=items.Length;
+				int len = items.Length;
 				Move(0, len);
-				for(int i = 0;i<len;i++)
-					_items[i]=items[i];
+				for (int i = 0; i < len; i++)
+					_items[i] = items[i];
 				Added?.Invoke(this, null);
 			}
 		}
@@ -293,9 +293,9 @@ namespace VCollectionObjects
 		/// </summary>
 		protected void ShiftRight(int startingIndex, int shiftLength)
 		{
-			if(PrvCheckIfLocked())
-				for(int i = Length;i>=startingIndex;i--)
-					Move(i, i+shiftLength);
+			if (PrvCheckIfLocked())
+				for (int i = Length; i >= startingIndex; i--)
+					Move(i, i + shiftLength);
 		}
 		/// <summary>
 		/// Shifts the items starting from the <paramref name="startingIndex"/> to the left of the array <paramref name="shiftLength"/> many times.
@@ -304,9 +304,9 @@ namespace VCollectionObjects
 		/// <param name="shiftLength">The number of places to move the elements by.</param>
 		protected void ShiftLeft(int startingIndex, int shiftLength)
 		{
-			if(PrvCheckIfLocked())
-				for(int i = startingIndex;i<startingIndex+shiftLength;i++)
-					Move(i, i-shiftLength);
+			if (PrvCheckIfLocked())
+				for (int i = startingIndex; i < startingIndex + shiftLength; i++)
+					Move(i, i - shiftLength);
 		}
 		/// <summary>
 		/// Copys the element at the <paramref name="sourceIndex"/> to the <paramref name="destinationIndex"/>.
@@ -315,22 +315,22 @@ namespace VCollectionObjects
 		/// <param name="destinationIndex">The index position to move the element at the <paramref name="sourceIndex"/> to.</param>
 		protected void Move(int sourceIndex, int destinationIndex)
 		{
-			if(PrvCheckIfLocked() && IsIndexValid(sourceIndex))
+			if (PrvCheckIfLocked() && IsIndexValid(sourceIndex))
 				PrvMoveOp(sourceIndex, destinationIndex);
 		}
 
 		private void PrvMoveOp(int sourceIndex, int destinationIndex)
 		{
-			T? tmp=_items[sourceIndex];
-			destinationIndex=PrvMoveOpCond(destinationIndex);
-			_items[destinationIndex]=tmp;
+			T? tmp = _items[sourceIndex];
+			destinationIndex = PrvMoveOpCond(destinationIndex);
+			_items[destinationIndex] = tmp;
 		}
 
-		private int PrvMoveOpCond(int destinationIndex) => destinationIndex>=Length ? PrvMoveOpResize(destinationIndex) : destinationIndex<0 ? PrvMoveShiftRightOpWhenLessThanZero(destinationIndex) : destinationIndex;
+		private int PrvMoveOpCond(int destinationIndex) => destinationIndex >= Length ? PrvMoveOpResize(destinationIndex) : destinationIndex < 0 ? PrvMoveShiftRightOpWhenLessThanZero(destinationIndex) : destinationIndex;
 
 		private int PrvMoveOpResize(int destinationIndex)
 		{
-			Resize(ref _items, destinationIndex+1);
+			Resize(ref _items, destinationIndex + 1);
 			return destinationIndex;
 		}
 
@@ -346,13 +346,13 @@ namespace VCollectionObjects
 		/// <param name="predicate"></param>
 		protected static void IterateAcceptValid(ref T[] array, Func<T, bool> predicate)
 		{
-			var tmp=array;
+			var tmp = array;
 			Array.Clear(array);
-			foreach(var sel in tmp)
-				if(predicate(sel))
+			foreach (var sel in tmp)
+				if (predicate(sel))
 				{
-					Resize(ref array, array.Length+1);
-					array[^1]=sel;
+					Resize(ref array, array.Length + 1);
+					array[^1] = sel;
 				}
 		}
 		/// <inheritdoc cref="Enumerable.Count{TSource}(IEnumerable{TSource}, Func{TSource, bool})"/>
@@ -366,8 +366,8 @@ namespace VCollectionObjects
 		/// <returns>an <see cref="int"/> representing the index position.</returns>
 		protected int IndexOf(T item)
 		{
-			for(int i=0;i<Length;i++)
-				if(IsValueEqual(item, _items[i]))
+			for (int i = 0; i < Length; i++)
+				if (IsValueEqual(item, _items[i]))
 					return i;
 			return -1;
 		}
@@ -377,14 +377,14 @@ namespace VCollectionObjects
 		/// </summary>
 		protected int ParallelIndexOf(T item)
 		{
-			int res=-1;
-			object lockObject=new ();
+			int res = -1;
+			object lockObject = new();
 			Parallel.For(0, Length, (i, pls) =>
 			{
-				if(IsValueEqual(item, _items[i]))
-					lock(lockObject)
+				if (IsValueEqual(item, _items[i]))
+					lock (lockObject)
 					{
-						res=i;
+						res = i;
 						pls.Break();
 					}
 			});
@@ -403,7 +403,7 @@ namespace VCollectionObjects
 		/// <param name="length"></param>
 		private void Resize(int length)
 		{
-			if(PrvCheckIfLocked())
+			if (PrvCheckIfLocked())
 			{
 				Resize(ref _items, length);
 				Resized?.Invoke(this, length);
@@ -420,7 +420,7 @@ namespace VCollectionObjects
 		/// </summary>
 		/// <param name="index">The index to test.</param>
 		/// <returns>a <see cref="bool">boolean</see> value representing success or failure.</returns>
-		protected bool IsIndexValid(int index) => index>-1 && index<Length;
+		protected bool IsIndexValid(int index) => index > -1 && index < Length;
 		/// <summary>
 		/// Gets the value that the <paramref name="value"/> is closest to.
 		/// </summary>
@@ -428,7 +428,7 @@ namespace VCollectionObjects
 		/// <param name="min">The minimum value.</param>
 		/// <param name="max">The maximum value.</param>
 		/// <returns>either the <paramref name="min"/> or <paramref name="max"/> value given that the <paramref name="value"/> is closest to.</returns>
-		protected static int GetClosest(int value, int min, int max) => Math.Max(min, value) - Math.Min(min, value)<Math.Max(max, value) - Math.Min(max, value) ? min : max;
+		protected static int GetClosest(int value, int min, int max) => Math.Max(min, value) - Math.Min(min, value) < Math.Max(max, value) - Math.Min(max, value) ? min : max;
 		/// <summary>
 		/// Gets the enumerator for this object.
 		/// </summary>
@@ -465,43 +465,43 @@ namespace VCollectionObjects
 		/// <returns></returns>
 		protected static string GetStringValue(object? value)
 		{
-			if(value is null)
+			if (value is null)
 				return "null";
-			if(System.Runtime.InteropServices.Marshal.IsComObject(value))
+			if (System.Runtime.InteropServices.Marshal.IsComObject(value))
 				return "COMObject";
-			if(value is string stringValue)
-				return "\""+stringValue+"\"";
-			if(value is char charValue)
-				return "'"+charValue+"'";
-			if(value is bool boolValue)
+			if (value is string stringValue)
+				return "\"" + stringValue + "\"";
+			if (value is char charValue)
+				return "'" + charValue + "'";
+			if (value is bool boolValue)
 				return boolValue ? "true" : "false";
-			if(value is Type typeValue)
+			if (value is Type typeValue)
 				return typeValue.Name;
-			if(IsKeyValurPair(value))
+			if (IsKeyValurPair(value))
 				return GetKVPString(value);
-			if(value is IEnumerable iEnumerableValue)
+			if (value is IEnumerable iEnumerableValue)
 				return GetStringValueOfEnumerable(iEnumerableValue);
 			return value.ToString()!;
 		}
 
 		private static string GetStringValueOfEnumerable(IEnumerable source)
 		{
-			string tmp="";
-			object lockObject=new();
-			Parallel.ForEach(source.Cast<object?>(), (item, pls)=>
+			string tmp = "";
+			object lockObject = new();
+			Parallel.ForEach(source.Cast<object?>(), (item, pls) =>
 			{
-				string value=GetStringValue(item);
-				lock(lockObject)
-					tmp+=(tmp.Length>0 ? "," : "") + value;
+				string value = GetStringValue(item);
+				lock (lockObject)
+					tmp += (tmp.Length > 0 ? "," : "") + value;
 			});
 			//foreach(var sel in source)
 			//	tmp+=(tmp.Length>0 ? "," : "") + GetStringValue(sel);
-			return source is IDictionary ? "{"+tmp+"}" : "["+tmp+"]";
+			return source is IDictionary ? "{" + tmp + "}" : "[" + tmp + "]";
 		}
 
 		private static string GetKVPString(object obj)
 		{
-			var pInfo=obj.GetType().GetProperties();
+			var pInfo = obj.GetType().GetProperties();
 			return GetStringValue(pInfo[0].GetValue(obj)) + ":" + GetStringValue(pInfo[1].GetValue(obj));
 		}
 
@@ -540,8 +540,8 @@ namespace VCollectionObjects
 		/// <exception cref="InvalidDataException"></exception>
 		public int CompareTo(object? obj)
 		{
-			if(obj is IVEnumerable value)
-				return value.Length<Length ? -1 : value.Length>Length ? 1 : 0;
+			if (obj is IVEnumerable value)
+				return value.Length < Length ? -1 : value.Length > Length ? 1 : 0;
 			else
 				throw new InvalidDataException();
 
