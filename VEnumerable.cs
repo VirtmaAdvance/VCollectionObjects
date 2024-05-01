@@ -467,7 +467,7 @@ namespace VCollectionObjects
 		{
 			if (value is null)
 				return "null";
-			if (System.Runtime.InteropServices.Marshal.IsComObject(value))
+			if (Marshal.IsComObject(value))
 				return "COMObject";
 			if (value is string stringValue)
 				return "\"" + stringValue + "\"";
@@ -494,8 +494,6 @@ namespace VCollectionObjects
 				lock (lockObject)
 					tmp += (tmp.Length > 0 ? "," : "") + value;
 			});
-			//foreach(var sel in source)
-			//	tmp+=(tmp.Length>0 ? "," : "") + GetStringValue(sel);
 			return source is IDictionary ? "{" + tmp + "}" : "[" + tmp + "]";
 		}
 
@@ -553,10 +551,7 @@ namespace VCollectionObjects
 		/// <param name="array"></param>
 		/// <param name="index"></param>
 		/// <exception cref="NotImplementedException"></exception>
-		public void CopyTo(Array array, int index)
-		{
-			throw new NotImplementedException();
-		}
+		public void CopyTo(Array array, int index) => Array.Copy(Items, index, array, 0, Math.Min(Length, array.Length));
 
 	}
 }
