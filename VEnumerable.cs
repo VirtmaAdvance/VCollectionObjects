@@ -544,7 +544,6 @@ namespace VCollectionObjects
 				return value.Length < Length ? -1 : value.Length > Length ? 1 : 0;
 			else
 				throw new InvalidDataException();
-
 		}
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
